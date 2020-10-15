@@ -1,0 +1,12 @@
+stages:
+    split:
+      cmd: python3 code/src/split.py data/sales_train.csv
+      deps:
+        - data/sales_train.csv
+      params:
+        - split.train_start_date
+        - split.train_end_date 
+        - split.val_end_date
+      outs:
+        - data/train/sales.csv
+        - data/val/sales.csv

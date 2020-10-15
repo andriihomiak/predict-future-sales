@@ -1,0 +1,4 @@
+split:
+  train_start_date: "2000-01-01"
+  train_end_date: "2015-10-01"
+  val_end_date: "2015-11-01"

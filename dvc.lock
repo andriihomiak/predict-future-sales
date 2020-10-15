@@ -1,0 +1,15 @@
+split:
+  cmd: python3 code/src/split.py data/sales_train.csv
+  deps:
+  - path: data/sales_train.csv
+    md5: bc7e53cc48549aba37d690093256facf
+  params:
+    params.yaml:
+      split.train_end_date: '2015-10-01'
+      split.train_start_date: '2000-01-01'
+      split.val_end_date: '2015-11-01'
+  outs:
+  - path: data/train/sales.csv
+    md5: 43b9211d07389e95c416df026b68d425
+  - path: data/val/sales.csv
+    md5: db83454df4961b3587bfa2bef3cc06bb
