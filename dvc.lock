@@ -1,6 +1,8 @@
 split:
   cmd: python3 code/src/split.py data/src/sales_train.csv
   deps:
+  - path: data/src/
+    md5: 317aedeb6fca09eab60a93531fd60b74.dir
   - path: data/src/sales_train.csv
     md5: bc7e53cc48549aba37d690093256facf
   params:
