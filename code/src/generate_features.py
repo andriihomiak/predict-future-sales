@@ -11,5 +11,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     (args.out_dir/"train").mkdir(exist_ok=True, parents=True)
+    (args.out_dir/"train"/"data.csv").write_text("train")
     (args.out_dir/"val").mkdir(exist_ok=True, parents=True)
+    (args.out_dir/"val"/"data.csv").write_text("val")
     (args.out_dir/"test").mkdir(exist_ok=True, parents=True)
+    (args.out_dir/"test"/"data.csv").write_text("test")

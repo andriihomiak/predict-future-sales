@@ -1,6 +1,8 @@
 split:
   cmd: python3 code/src/split.py data/src/sales_train.csv
   deps:
+  - path: code/src/split.py
+    md5: f08687dc8f732dc2b0a6b2db14c86cab
   - path: data/src/
     md5: 317aedeb6fca09eab60a93531fd60b74.dir
   - path: data/src/sales_train.csv
@@ -18,6 +20,8 @@ split:
 generate_features:
   cmd: python3 code/src/generate_features.py data/train data/val data/src
   deps:
+  - path: code/src/generate_features.py
+    md5: a910037f692e15593f3fc4a450ef2bf7
   - path: data/src
     md5: 317aedeb6fca09eab60a93531fd60b74.dir
   - path: data/train
@@ -26,24 +30,28 @@ generate_features:
     md5: a1a6bdbe9fc799d88c25bfe96341b8d9.dir
   outs:
   - path: data/prepared/test
-    md5: d751713988987e9331980363e24189ce.dir
+    md5: 585f0d2eb12b375822441e460d6d94a2.dir
   - path: data/prepared/train
-    md5: d751713988987e9331980363e24189ce.dir
+    md5: d797188cb8bcc038766716c4ce7f0a93.dir
   - path: data/prepared/val
-    md5: d751713988987e9331980363e24189ce.dir
+    md5: d76c4e5268b15ede7a0ead08a5759650.dir
 train:
   cmd: python3 code/src/train.py data/prepared/train
   deps:
+  - path: code/src/train.py
+    md5: c3cb96411764bdc5fbe427c26eaec154
   - path: data/prepared/train
-    md5: d751713988987e9331980363e24189ce.dir
+    md5: d797188cb8bcc038766716c4ce7f0a93.dir
   outs:
   - path: model.pkl
     md5: d41d8cd98f00b204e9800998ecf8427e
 evaluate:
   cmd: python3 code/src/evaluate.py data/prepared/val
   deps:
+  - path: code/src/evaluate.py
+    md5: 4c05190d0e2a3bd8d695e932bd3043c0
   - path: data/prepared/val
-    md5: d751713988987e9331980363e24189ce.dir
+    md5: d76c4e5268b15ede7a0ead08a5759650.dir
   outs:
   - path: metrics.json
     md5: 997484572d820db93db70d8ce735c1a4
