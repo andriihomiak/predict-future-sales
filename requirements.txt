@@ -1,6 +1,7 @@
 argon2-cffi==20.1.0
 async-generator==1.10
 attrs==20.2.0
+autopep8==1.5.4
 backcall==0.2.0
 bleach==3.2.1
 certifi==2020.6.20
@@ -13,7 +14,7 @@ entrypoints==0.3
 idna==2.10
 importlib-metadata==2.0.0
 ipykernel==5.3.4
-ipython==7.18.1
+ipython==7.16.1
 ipython-genutils==0.2.0
 jedi==0.17.2
 Jinja2==2.11.2
@@ -45,6 +46,7 @@ Pillow==7.2.0
 prometheus-client==0.8.0
 prompt-toolkit==3.0.7
 ptyprocess==0.6.0
+pycodestyle==2.6.0
 pycparser==2.20
 Pygments==2.7.1
 pyparsing==2.4.7
@@ -62,6 +64,7 @@ six==1.15.0
 terminado==0.9.1
 testpath==0.4.4
 threadpoolctl==2.1.0
+toml==0.10.1
 tornado==6.0.4
 traitlets==5.0.4
 urllib3==1.25.10
