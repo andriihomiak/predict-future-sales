@@ -13,34 +13,34 @@ split:
       split.train_start_date: '2000-01-01'
       split.val_end_date: '2015-11-01'
   outs:
-  - path: data/train
+  - path: data/train/
     md5: a978d5e50e1189a4531773b2b1f71963.dir
-  - path: data/val
+  - path: data/val/
     md5: a1a6bdbe9fc799d88c25bfe96341b8d9.dir
 generate_features:
   cmd: python3 code/src/generate_features.py data/train data/val data/src
   deps:
   - path: code/src/generate_features.py
     md5: a910037f692e15593f3fc4a450ef2bf7
-  - path: data/src
+  - path: data/src/
     md5: 317aedeb6fca09eab60a93531fd60b74.dir
-  - path: data/train
+  - path: data/train/
     md5: a978d5e50e1189a4531773b2b1f71963.dir
-  - path: data/val
+  - path: data/val/
     md5: a1a6bdbe9fc799d88c25bfe96341b8d9.dir
   outs:
-  - path: data/prepared/test
+  - path: data/prepared/test/
     md5: 585f0d2eb12b375822441e460d6d94a2.dir
-  - path: data/prepared/train
+  - path: data/prepared/train/
     md5: d797188cb8bcc038766716c4ce7f0a93.dir
-  - path: data/prepared/val
+  - path: data/prepared/val/
     md5: d76c4e5268b15ede7a0ead08a5759650.dir
 train:
   cmd: python3 code/src/train.py data/prepared/train
   deps:
   - path: code/src/train.py
     md5: c3cb96411764bdc5fbe427c26eaec154
-  - path: data/prepared/train
+  - path: data/prepared/train/
     md5: d797188cb8bcc038766716c4ce7f0a93.dir
   outs:
   - path: model.pkl
@@ -50,7 +50,7 @@ evaluate:
   deps:
   - path: code/src/evaluate.py
     md5: 4c05190d0e2a3bd8d695e932bd3043c0
-  - path: data/prepared/val
+  - path: data/prepared/val/
     md5: d76c4e5268b15ede7a0ead08a5759650.dir
   outs:
   - path: metrics.json
