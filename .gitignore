@@ -142,5 +142,4 @@ cython_debug/
 
 credentials/
 
-data/
 /model.pkl
