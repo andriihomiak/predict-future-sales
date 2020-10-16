@@ -8,5 +8,28 @@ stages:
         - split.train_end_date 
         - split.val_end_date
       outs:
-        - data/train/sales.csv
-        - data/val/sales.csv
+        - data/train
+        - data/val
+    generate_features:
+      cmd: python3 code/src/generate_features.py data/train data/val data/src
+      deps:
+        - data/src
+        - data/train
+        - data/val
+      outs:
+        - data/prepared/train
+        - data/prepared/val
+        - data/prepared/test
+    train:
+      cmd: python3 code/src/train.py data/prepared/train
+      deps:
+        - data/prepared/train
+      outs:
+        - model.pkl
+    evaluate:
+      cmd: python3 code/src/evaluate.py data/prepared/val
+      deps:
+        - data/prepared/val
+      metrics:
+        - metrics.json:
+            cache: false
