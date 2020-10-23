@@ -49,9 +49,9 @@ evaluate:
   cmd: python3 code/src/evaluate.py data/prepared/val
   deps:
   - path: code/src/evaluate.py
-    md5: 4c05190d0e2a3bd8d695e932bd3043c0
+    md5: 68a3f2174d429420baaf581a1accf287
   - path: data/prepared/val/
     md5: d76c4e5268b15ede7a0ead08a5759650.dir
   outs:
   - path: metrics.json
-    md5: 997484572d820db93db70d8ce735c1a4
+    md5: 168f98aff942e5bf8cae4e42268fcbe8
