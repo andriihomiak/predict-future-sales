@@ -25,16 +25,20 @@ stages:
       - data/prepared/test/
   train:
     cmd: python3 code/src/train.py data/prepared/train
+    params:
+      - train
     deps:
       - code/src/train.py
       - data/prepared/train/
     outs:
       - model.pkl
   evaluate:
-    cmd: python3 code/src/evaluate.py data/prepared/val
+    cmd: python3 code/src/evaluate.py data/prepared/val data/src/
+
     deps:
       - code/src/evaluate.py
       - data/prepared/val/
+      - data/src/
     metrics:
       - metrics.json:
           cache: false

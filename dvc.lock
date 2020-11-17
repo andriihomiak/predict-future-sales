@@ -4,7 +4,7 @@ split:
   - path: code/src/split.py
     md5: c5384277f2e73ab99c97c960f8074598
   - path: data/src/
-    md5: 317aedeb6fca09eab60a93531fd60b74.dir
+    md5: 76e0a38eb1da9c30f1ecdfca4f3e7f9a.dir
   - path: data/src/sales_train.csv
     md5: bc7e53cc48549aba37d690093256facf
   params:
@@ -23,7 +23,7 @@ generate_features:
   - path: code/src/generate_features.py
     md5: 379f6dc514f48642e98b81ea7e93249f
   - path: data/src/
-    md5: 317aedeb6fca09eab60a93531fd60b74.dir
+    md5: 76e0a38eb1da9c30f1ecdfca4f3e7f9a.dir
   - path: data/train/
     md5: f68f9b7a3ddca9dea6267e552fcdc29e.dir
   - path: data/val/
@@ -39,19 +39,28 @@ train:
   cmd: python3 code/src/train.py data/prepared/train
   deps:
   - path: code/src/train.py
-    md5: c3cb96411764bdc5fbe427c26eaec154
+    md5: 474db15ea28ad1812371347d1c592a5d
   - path: data/prepared/train/
     md5: 2f985935bc8b179745cb14b24da36cea.dir
+  params:
+    params.yaml:
+      train:
+        n_estimators: 50
+        criterion: friedman_mse
+        verbose: true
+        random_state: 42
   outs:
   - path: model.pkl
-    md5: d41d8cd98f00b204e9800998ecf8427e
+    md5: aa5d4f335d03dbc5eb5d509bf9453652
 evaluate:
-  cmd: python3 code/src/evaluate.py data/prepared/val
+  cmd: python3 code/src/evaluate.py data/prepared/val data/src/
   deps:
   - path: code/src/evaluate.py
-    md5: 68a3f2174d429420baaf581a1accf287
+    md5: 96c5b49d2fbad5954ecd590bf245998b
   - path: data/prepared/val/
     md5: 1298e9e77b6e1525bd2dfe01cda18802.dir
+  - path: data/src/
+    md5: 76e0a38eb1da9c30f1ecdfca4f3e7f9a.dir
   outs:
   - path: metrics.json
-    md5: 168f98aff942e5bf8cae4e42268fcbe8
+    md5: b2d9a0fbcfddf1070ddedfa148ca9603
