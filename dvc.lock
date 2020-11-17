@@ -45,13 +45,13 @@ train:
   params:
     params.yaml:
       train:
-        n_estimators: 50
+        n_estimators: 200
         criterion: friedman_mse
         verbose: true
         random_state: 42
   outs:
   - path: model.pkl
-    md5: aa5d4f335d03dbc5eb5d509bf9453652
+    md5: 9251b4813e978e9910ff55574534b952
 evaluate:
   cmd: python3 code/src/evaluate.py data/prepared/val data/src/
   deps:
@@ -61,6 +61,8 @@ evaluate:
     md5: 1298e9e77b6e1525bd2dfe01cda18802.dir
   - path: data/src/
     md5: 76e0a38eb1da9c30f1ecdfca4f3e7f9a.dir
+  - path: model.pkl
+    md5: 9251b4813e978e9910ff55574534b952
   outs:
   - path: metrics.json
-    md5: b2d9a0fbcfddf1070ddedfa148ca9603
+    md5: 1c76d5d89c3b7e22aed6d0001f12a762
