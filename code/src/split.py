@@ -41,5 +41,5 @@ if __name__ == "__main__":
     train, val = split_data(pd.read_csv(args.file), params)
     (args.out_dir/"train").mkdir(exist_ok=True, parents=True)
     (args.out_dir/"val").mkdir(exist_ok=True, parents=True)
-    train.to_csv(args.out_dir/"train"/"sales.csv")
-    val.to_csv(args.out_dir/"val"/"sales.csv")
+    train.to_csv(args.out_dir/"train"/"sales.csv", index=False)
+    val.to_csv(args.out_dir/"val"/"sales.csv", index=False)
