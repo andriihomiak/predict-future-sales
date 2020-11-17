@@ -39,6 +39,7 @@ stages:
       - code/src/evaluate.py
       - data/prepared/val/
       - data/src/
+      - model.pkl
     metrics:
       - metrics.json:
           cache: false

@@ -3,7 +3,7 @@ split:
   train_end_date: "2015-10-01"
   val_end_date: "2015-11-01"
 train:
-  n_estimators: 50
+  n_estimators: 200
   criterion: friedman_mse
   verbose: true
   random_state: 42
