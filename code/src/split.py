@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def load_params(path: Optional[Path] = Path("params.yaml")) -> Dict:
-    params = safe_load(path.read_text())["split"]
+    params = safe_load(path.read_text())["validation_split"]
     return params
 
 
@@ -34,12 +34,11 @@ if __name__ == "__main__":
     parser.add_argument("--out_dir",
                         type=Path,
                         required=False,
-                        default=Path("data/"),
                         help="path to output folder")
     args = parser.parse_args()
     params = load_params(args.params)
-    train, val = split_data(pd.read_csv(args.file), params)
+    train, val = split_data(pd.read_hdf(args.file), params)
     (args.out_dir/"train").mkdir(exist_ok=True, parents=True)
     (args.out_dir/"val").mkdir(exist_ok=True, parents=True)
-    train.to_csv(args.out_dir/"train"/"sales.csv", index=False)
-    val.to_csv(args.out_dir/"val"/"sales.csv", index=False)
+    train.to_hdf(args.out_dir/"train"/"sales.hdf", key="sales")
+    val.to_hdf(args.out_dir/"val"/"sales.hdf", key="sales")

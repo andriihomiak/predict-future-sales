@@ -1,66 +1,131 @@
-split:
-  cmd: python3 code/src/split.py data/src/sales_train.csv
-  deps:
-  - path: code/src/split.py
-    md5: c5384277f2e73ab99c97c960f8074598
-  - path: data/src/
-    md5: 76e0a38eb1da9c30f1ecdfca4f3e7f9a.dir
-  - path: data/src/sales_train.csv
-    md5: bc7e53cc48549aba37d690093256facf
-  params:
-    params.yaml:
-      split.train_end_date: '2015-10-01'
-      split.train_start_date: '2000-01-01'
-      split.val_end_date: '2015-11-01'
-  outs:
-  - path: data/train/
-    md5: f68f9b7a3ddca9dea6267e552fcdc29e.dir
-  - path: data/val/
-    md5: 77f3e34f43a02279a63096852ce3d5a1.dir
-generate_features:
-  cmd: python3 code/src/generate_features.py data/train data/val data/src
-  deps:
-  - path: code/src/generate_features.py
-    md5: 379f6dc514f48642e98b81ea7e93249f
-  - path: data/src/
-    md5: 76e0a38eb1da9c30f1ecdfca4f3e7f9a.dir
-  - path: data/train/
-    md5: f68f9b7a3ddca9dea6267e552fcdc29e.dir
-  - path: data/val/
-    md5: 77f3e34f43a02279a63096852ce3d5a1.dir
-  outs:
-  - path: data/prepared/test/
-    md5: d751713988987e9331980363e24189ce.dir
-  - path: data/prepared/train/
-    md5: 2f985935bc8b179745cb14b24da36cea.dir
-  - path: data/prepared/val/
-    md5: 1298e9e77b6e1525bd2dfe01cda18802.dir
-train:
-  cmd: python3 code/src/train.py data/prepared/train
-  deps:
-  - path: code/src/train.py
-    md5: 474db15ea28ad1812371347d1c592a5d
-  - path: data/prepared/train/
-    md5: 2f985935bc8b179745cb14b24da36cea.dir
-  params:
-    params.yaml:
-      train:
-        n_estimators: 50
-        criterion: friedman_mse
-        verbose: true
-        random_state: 42
-  outs:
-  - path: model.pkl
-    md5: aa5d4f335d03dbc5eb5d509bf9453652
-evaluate:
-  cmd: python3 code/src/evaluate.py data/prepared/val data/src/
-  deps:
-  - path: code/src/evaluate.py
-    md5: 96c5b49d2fbad5954ecd590bf245998b
-  - path: data/prepared/val/
-    md5: 1298e9e77b6e1525bd2dfe01cda18802.dir
-  - path: data/src/
-    md5: 76e0a38eb1da9c30f1ecdfca4f3e7f9a.dir
-  outs:
-  - path: metrics.json
-    md5: b2d9a0fbcfddf1070ddedfa148ca9603
+schema: '2.0'
+stages:
+  split:
+    cmd: python3 code/src/split.py data/src/sales_train.csv
+    deps:
+    - path: code/src/split.py
+      md5: c5384277f2e73ab99c97c960f8074598
+      size: 1807
+    - path: data/src/
+      md5: 317aedeb6fca09eab60a93531fd60b74.dir
+      size: 101606676
+      nfiles: 6
+    - path: data/src/sales_train.csv
+      md5: bc7e53cc48549aba37d690093256facf
+      size: 94603866
+    params:
+      params.yaml:
+        split.train_end_date: '2015-10-01'
+        split.train_start_date: '2000-01-01'
+        split.val_end_date: '2015-11-01'
+    outs:
+    - path: data/train/
+      md5: f68f9b7a3ddca9dea6267e552fcdc29e.dir
+      size: 91636722
+      nfiles: 1
+    - path: data/val/
+      md5: 77f3e34f43a02279a63096852ce3d5a1.dir
+      size: 1697952
+      nfiles: 1
+  generate_features:
+    cmd: python3 code/src/generate_features.py --sales-from data/converted/ --extra-from
+      data/converted/ --output-folder data/prepared/submission/
+    deps:
+    - path: code/src/generate_features.py
+      md5: ddbd10fa4f89b6a6eb9e174627c7b270
+      size: 4130
+    - path: data/converted/
+      md5: 8cf131e0b99b96ebd7142caeb84b034f.dir
+      size: 169057688
+      nfiles: 6
+    outs:
+    - path: data/prepared/submission/
+      md5: 9c770a8872a97240675e18256c86db49.dir
+      size: 260797280
+      nfiles: 2
+  train:
+    cmd: python3 code/src/train.py data/prepared/train
+    deps:
+    - path: code/src/train.py
+      md5: 474db15ea28ad1812371347d1c592a5d
+      size: 2905
+    - path: data/prepared/train/
+      md5: 3c02a39a91e58bfc3483530214a50563.dir
+      size: 200930075
+      nfiles: 1
+    params:
+      params.yaml:
+        train:
+          n_estimators: 50
+          criterion: friedman_mse
+          verbose: true
+          random_state: 42
+    outs:
+    - path: model.pkl
+      md5: 2264b57cbd168f965f9a1d19f40e962a
+      size: 64245
+  evaluate:
+    cmd: python3 code/src/evaluate.py data/prepared/val data/src/
+    deps:
+    - path: code/src/evaluate.py
+      md5: 96c5b49d2fbad5954ecd590bf245998b
+      size: 3225
+    - path: data/prepared/val/
+      md5: e8f745ed38da233b9ffbdd0a34945d74.dir
+      size: 5354534
+      nfiles: 1
+    - path: data/src/
+      md5: 317aedeb6fca09eab60a93531fd60b74.dir
+      size: 101606676
+      nfiles: 6
+    outs:
+    - path: metrics.json
+      md5: e37df10468eb46dc89ff577bd242105d
+      size: 28
+  get_data:
+    cmd: bash code/src/download_data.sh
+    deps:
+    - path: code/src/download_data.sh
+      md5: ac918d52e3a0bc7aef05cddb3c49df51
+      size: 202
+    outs:
+    - path: data/src/
+      md5: 317aedeb6fca09eab60a93531fd60b74.dir
+      size: 101606676
+      nfiles: 6
+  convert_to_hdf:
+    cmd: python code/src/convert_to_hdf.py --src data/src/ --dest data/converted/
+    deps:
+    - path: code/src/convert_to_hdf.py
+      md5: 6ac4902ce7a37b9b3618c5283214a9f3
+      size: 1530
+    - path: data/src/
+      md5: 317aedeb6fca09eab60a93531fd60b74.dir
+      size: 101606676
+      nfiles: 6
+    outs:
+    - path: data/converted/
+      md5: 8cf131e0b99b96ebd7142caeb84b034f.dir
+      size: 169057688
+      nfiles: 6
+  validation_split:
+    cmd: python3 code/src/split.py data/converted/sales_train.hdf --out_dir data/validation/
+    deps:
+    - path: code/src/split.py
+      md5: 99206b67e054d5329badef994fa5f9e6
+      size: 1771
+    - path: data/converted/
+      md5: 0ee508ffb4c1ed77958518f235531c28.dir
+      size: 172273344
+      nfiles: 6
+    params:
+      params.yaml:
+        validation_split:
+          train_start_date: '2000-01-01'
+          train_end_date: '2015-10-01'
+          val_end_date: '2015-11-01'
+    outs:
+    - path: data/validation/
+      md5: 0c12c09d9b83afd16dd1fa9892e94b6a.dir
+      size: 162239072
+      nfiles: 2

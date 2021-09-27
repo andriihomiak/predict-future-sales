@@ -1,44 +1,140 @@
 stages:
-  split:
-    cmd: python3 code/src/split.py data/src/sales_train.csv
+  get_data:
+    desc: |
+      Download data from kaggle.
+
+      This requires kaggle api token.
+    cmd: bash code/src/download_data.sh
     deps:
-      - code/src/split.py
-      - data/src/
-      - data/src/sales_train.csv
-    params:
-      - split.train_start_date
-      - split.train_end_date
-      - split.val_end_date
+      - code/src/download_data.sh
     outs:
-      - data/train/
-      - data/val/
+      - data/src/
+
+  convert_to_hdf:
+    desc: |
+      Convert data to HDF5 format for faster ingestion
+    cmd: 
+      python code/src/convert_to_hdf.py 
+        --src data/src/ 
+        --dest data/converted/
+    deps:
+      - code/src/convert_to_hdf.py
+      - data/src/
+    outs:
+      - data/converted/
   generate_features:
-    cmd: python3 code/src/generate_features.py data/train data/val data/src
+    desc: | 
+      Generate features for entire train dataset
+      |-----------------|------------|
+      |train_data (1)   |test_data(2)|
+      |-----------------|------------|
+      
+      train_data is entire range of the records before the test range.
+        every record should contain lagged features (the ones that are 
+        from the previous month)
+      test_data is the data obtained by applying the information about 
+        shops from the last date block.
+
+    cmd:
+      python3 code/src/generate_features.py 
+        --sales-from data/converted/ 
+        --extra-from data/converted/
+        --output-folder data/prepared/submission/
     deps:
       - code/src/generate_features.py
-      - data/src/
-      - data/train/
-      - data/val/
+      - data/converted/
     outs:
-      - data/prepared/train/
-      - data/prepared/val/
-      - data/prepared/test/
-  train:
-    cmd: python3 code/src/train.py data/prepared/train
-    params:
-      - train
-    deps:
-      - code/src/train.py
-      - data/prepared/train/
-    outs:
-      - model.pkl
-  evaluate:
-    cmd: python3 code/src/evaluate.py data/prepared/val data/src/
+      - data/prepared/submission/
+  # validation_split:
+  #   desc: |
+  #     Prepare simple hold-out split.
 
-    deps:
-      - code/src/evaluate.py
-      - data/prepared/val/
-      - data/src/
-    metrics:
-      - metrics.json:
-          cache: false
+  #     The train data is split so that the last month is being used 
+  #       as validation set.
+  #   cmd:
+  #     python3 code/src/split.py 
+  #       data/converted/sales_train.hdf
+  #       --out_dir data/validation/
+  #   deps:
+  #     - code/src/split.py
+  #     - data/converted/
+  #   params:
+  #     - validation_split
+  #   outs:
+  #     - data/validation/
+
+  # generate_features_validation:
+  #   desc: | 
+  #     Generate features for the validation split dataset
+  #     |-----------------|------------|
+  #     |train_data       |val_data    |
+  #     |-----------------|------------|
+      
+  #     train_data is sub-range of the records before the validation range.
+  #       every record should contain lagged features (the ones that are 
+  #       from the previous month)
+  #     val_data is the data obtained by applying the information about 
+  #       shops from the next-to-last date block in the train set.
+  #   cmd:
+  #     python3 code/src/generate_features.py 
+  #       --sales-from data/validation/ 
+  #       --extra-from data/converted/
+  #       --output-folder data/prepared/validation/
+  #   deps:
+  #     - code/src/generate_features.py
+  #     - data/converted/
+  #     - data/validation/
+  #   outs:
+  #     - data/prepared/validation/
+
+  
+  # select_hyperparameters:
+  #   desc: | 
+  #     Perform hyperparameter tuning.
+
+  #     Hyperparameters are selected based on the validation split 
+  #       and are exported as a json file. 
+  #   cmd:
+  #     python code/src/tune_hyperparameters.py
+  #       --data data/prepared/validation/
+  #       --metrics metrics.json
+  #       --output data/optimal_parameters.json
+  #   deps:
+  #     - code/src/tune_hyperparameters.py
+  #     - data/prepared/validation/
+  #   outs:
+  #     - data/hyperparameters.json
+  #   metrics:
+  #     - metrics.json:
+  #         cache: False
+  # train:
+  #   desc: |
+  #     Perform final model training.
+
+  #     Hyperparameters are based on the results of hyperparameter 
+  #       selection stage
+  #   cmd:
+  #     python code/src/train.py
+  #       --data data/prepared/submission/
+  #       --hyperparams data/hyperparameters.json
+  #       --model data/model.pkl
+  #   deps:
+  #     - code/src/train.py
+  #     - data/hyperparameters.json
+  #     - data/prepared/submission/
+  #   outs:
+  #     - data/model.pkl
+  # generate_submission:
+  #   desc: |
+  #     Generate model submission file
+  #   cmd:
+  #     python code/src/generate_submission.py
+  #       --data data/prepared/submission/
+  #       --output submission.csv
+  #   deps:
+  #     - code/src/generate_submission.py
+  #     - data/prepared/submission/
+  #   outs:
+  #     - submission.csv:
+  #         cache: False
+    

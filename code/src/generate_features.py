@@ -17,13 +17,13 @@ def get_item_info_df(src_folder: Path) -> DataFrame:
     Returns:
         DataFrame: resulting dataframe
     """
-    items_df = pd.read_csv(src_folder/"items.csv")
-    item_categories_df = pd.read_csv(src_folder/"item_categories.csv")
+    items_df = pd.read_hdf(src_folder/"items.hdf")
+    item_categories_df = pd.read_hdf(src_folder/"item_categories.hdf")
     items_info_df = items_df.merge(item_categories_df, on="item_category_id")
     return items_info_df
 
 
-def load_sales_from_folder(folder: Path) -> DataFrame:
+def load_train_test_sales(folder: Path) -> Tuple[DataFrame, DataFrame]:
     """Load sales dataframe from given folder
 
     Args:
@@ -32,8 +32,10 @@ def load_sales_from_folder(folder: Path) -> DataFrame:
     Returns:
         DataFrame: sales dataframe
     """
-    return (pd.read_csv(folder/"sales.csv")
+    train_df = (pd.read_hdf(folder/"train.hdf")
             .assign(date=lambda df: pd.to_datetime(df.date)))
+    # TODO: add proper val_df
+    return train_df, train_df
 
 
 def aggregate_months(sales_df: DataFrame, item_info_df: DataFrame) -> DataFrame:
@@ -46,60 +48,52 @@ def aggregate_months(sales_df: DataFrame, item_info_df: DataFrame) -> DataFrame:
     Returns:
         DataFrame: aggregated dataframe
     """
-    return (sales_df.query("item_cnt_day > 0")
-            .assign(
+    return (
+        sales_df.query("item_cnt_day > 0")
+        .assign(
             date_month=lambda df: df.date.dt.month,
             date_year=lambda df: df.date.dt.year,
-            )
-            .assign(
-            date_block_num=lambda df: (
-                df.date_year - 2013) * 12 + df.date_month,
-            )
-            .assign(date_block_num=lambda df: df.date_block_num.astype(int))
-            .groupby(["shop_id", "item_id", "date_block_num"])
-            .agg({
-                "item_cnt_day": sum,
-                "date_year": lambda r: r.iloc[0],
-                "date_month": lambda r: r.iloc[0],
-                "item_price": np.mean
-            })
-            .rename(columns={"item_cnt_day": "item_cnt_month"})
-            .reset_index()
-            .sort_values(["date_block_num", "shop_id", "item_id"])
-            .assign(item_cnt_month=lambda df: df.item_cnt_month.clip(0, 20))
-            .merge(item_info_df, on="item_id")
-            )
+        )
+        .assign(date_block_num=lambda df: df.date_block_num.astype(int))
+        .groupby(["shop_id", "item_id", "date_block_num"])
+        .agg({
+            "item_cnt_day": sum,
+            "date_year": lambda r: r.iloc[0],
+            "date_month": lambda r: r.iloc[0],
+            "item_price": np.mean
+        })
+        .rename(columns={"item_cnt_day": "item_cnt_month"})
+        .reset_index()
+        .sort_values(["date_block_num", "shop_id", "item_id"])
+        .assign(item_cnt_month=lambda df: df.item_cnt_month.clip(0, 20))
+        .merge(item_info_df, on="item_id")
+    )
 
 
-def prepare_train_val(train_folder: Path, val_folder: Path,
-                      src_folder: Path) -> Tuple[DataFrame, DataFrame]:
+def prepare_train_val(folder: Path, extra_folder: Path) -> Tuple[DataFrame, DataFrame]:
     """Prepare train and val dataframes
 
     Args:
-        train_folder (Path): folder containing train sales.csv
-        val_folder (Path): folder containing val sales.csv
-        src_folder (Path): folder with items.csv and item_categories.csv
+        folder: Path - folder with train sales and test dataframes
+        extra_folder: Path - folder with shops, items, categories etc.
 
     Returns:
         Tuple[DataFrame, DataFrame]: (train_df, val_df)
     """
-    item_info = get_item_info_df(src_folder)
-    train_sales = load_sales_from_folder(train_folder)
-    val_sales = load_sales_from_folder(val_folder)
+    item_info = get_item_info_df(extra_folder)
+    train_sales, test_sales = load_train_test_sales(folder)
 
     train_df = aggregate_months(train_sales, item_info)
-    val_df = aggregate_months(val_sales, item_info)
+    val_df = aggregate_months(test_sales, item_info)
     return train_df, val_df
 
 
-def write_to_output_folder(train_df: DataFrame, val_df: DataFrame,
-                           test_df: DataFrame, out_folder: Path):
+def write_to_output_folder(train_df: DataFrame, val_df: DataFrame, out_folder: Path):
     """Write datagrames to output folder
 
     Args:
         train_df (DataFrame): train dataframe
         val_df (DataFrame): val dataframe
-        test_df (DataFrame): test dataframe
         out_folder (Path): folder to write to
     """
     def ensure_exists(kind: str) -> Path:
@@ -109,27 +103,24 @@ def write_to_output_folder(train_df: DataFrame, val_df: DataFrame,
 
     train_folder = ensure_exists("train")
     val_folder = ensure_exists("val")
-    test_folder = ensure_exists("test")
 
-    train_df.to_csv(train_folder/"data.csv", index=False)
-    val_df.to_csv(val_folder/"data.csv", index=False)
-    # test_df.to_csv(test_folder/"data.csv", index=False)
+    train_df.to_hdf(train_folder/"data.hdf", key="train")
+    val_df.to_hdf(val_folder/"data.hdf", key="val")
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("train_folder", type=Path)
-    parser.add_argument("val_folder", type=Path)
-    parser.add_argument("src_folder", type=Path)
-    parser.add_argument("--out_folder", type=Path,
-                        required=False, default=Path("data/prepared"))
+    parser.add_argument("--sales-from", type=Path,
+                        help="Location of the folder containing train sales info")
+    parser.add_argument("--extra-from", type=Path,
+                        help="Location of the folder containing items info, item categories etc.")
+    parser.add_argument("--output-folder", type=Path)
     args = parser.parse_args()
 
-    train, val = prepare_train_val(train_folder=args.train_folder,
-                                         val_folder=args.val_folder,
-                                         src_folder=args.src_folder)
+    train, val = prepare_train_val(
+        folder=args.sales_from,
+        extra_folder=args.extra_from)
 
     write_to_output_folder(train_df=train,
                            val_df=val,
-                           test_df=None,
-                           out_folder=args.out_folder)
+                           out_folder=args.output_folder)
