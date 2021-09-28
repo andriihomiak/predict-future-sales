@@ -134,8 +134,8 @@ stages:
       --metrics metrics.json --output data/hyperparameters.json
     deps:
     - path: code/src/tune_hyperparameters.py
-      md5: 41e7d841de00e934f41d87829e9dfff3
-      size: 2233
+      md5: 404270a3e8e8d85f1a3982aec4a4b482
+      size: 2258
     - path: data/prepared/submission/
       md5: 9c770a8872a97240675e18256c86db49.dir
       size: 260797280
