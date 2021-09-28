@@ -129,3 +129,21 @@ stages:
       md5: 0c12c09d9b83afd16dd1fa9892e94b6a.dir
       size: 162239072
       nfiles: 2
+  select_hyperparameters:
+    cmd: python code/src/tune_hyperparameters.py --data data/prepared/submission/
+      --metrics metrics.json --output data/hyperparameters.json
+    deps:
+    - path: code/src/tune_hyperparameters.py
+      md5: 41e7d841de00e934f41d87829e9dfff3
+      size: 2233
+    - path: data/prepared/submission/
+      md5: 9c770a8872a97240675e18256c86db49.dir
+      size: 260797280
+      nfiles: 2
+    outs:
+    - path: data/hyperparameters.json
+      md5: 3e93aa2c77726cca1a5f218e3af57572
+      size: 54
+    - path: metrics.json
+      md5: ea4a739c31825e082644ddfd57d2243a
+      size: 29

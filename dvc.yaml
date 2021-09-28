@@ -88,25 +88,26 @@ stages:
   #     - data/prepared/validation/
 
   
-  # select_hyperparameters:
-  #   desc: | 
-  #     Perform hyperparameter tuning.
+  select_hyperparameters:
+    desc: | 
+      Perform hyperparameter tuning.
 
-  #     Hyperparameters are selected based on the validation split 
-  #       and are exported as a json file. 
-  #   cmd:
-  #     python code/src/tune_hyperparameters.py
-  #       --data data/prepared/validation/
-  #       --metrics metrics.json
-  #       --output data/optimal_parameters.json
-  #   deps:
-  #     - code/src/tune_hyperparameters.py
-  #     - data/prepared/validation/
-  #   outs:
-  #     - data/hyperparameters.json
-  #   metrics:
-  #     - metrics.json:
-  #         cache: False
+      Hyperparameters are selected based on the validation split 
+        and are exported as a json file. 
+    cmd:
+      python code/src/tune_hyperparameters.py
+        --data data/prepared/submission/
+        --metrics metrics.json
+        --output data/hyperparameters.json
+    deps:
+      - code/src/tune_hyperparameters.py
+      - data/prepared/submission/
+    outs:
+      - data/hyperparameters.json
+    metrics:
+      - metrics.json:
+          cache: False
+
   # train:
   #   desc: |
   #     Perform final model training.
